@@ -12,6 +12,11 @@ class Boule:
         self.x += x_move
         self.y += y_move
         self.angle += angle
+
+class Eye:
+    def __init__(self, lenght, angle):
+        self.lenght =lenght
+        self.angle = angle
     
 
     
@@ -25,6 +30,11 @@ class Spike:
 
     def move(self):
         self.pilot.move(self)
+
+    def get_x(self):
+        return self.x
+    def get_y(self):
+        return self.y
 
 
 
