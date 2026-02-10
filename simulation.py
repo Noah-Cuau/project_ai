@@ -1,5 +1,3 @@
-
-
 class Boule:
     def __init__(self, x, y, angle, eyes_list, pilot):
         self.x = x
