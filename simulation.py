@@ -63,8 +63,12 @@ class Spike:
 
     def get_x(self):
         return self.x
+    
     def get_y(self):
         return self.y
+    
+    def get_radius(self):
+        return self.radius
 
 
 
