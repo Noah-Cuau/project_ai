@@ -39,6 +39,9 @@ class Boule:
     def get_angle(self):
         return self.angle
     
+    def get_radius(self):
+        return self.radius
+    
     
 
 class Eye:
