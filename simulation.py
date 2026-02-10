@@ -15,3 +15,8 @@ class Boules:
         self.y += y_move
         self.angle += angle
     
+class board:
+    def __init__(self):
+        self.boules = []
+        self.spikes = []
+        self.wall = []
