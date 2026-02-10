@@ -1,3 +1,20 @@
+from pygame import math
+
+class Circle:
+    def __init__(self, x,y,radius):
+        self.x = x
+        self.y = y
+        self.radius = radius
+    
+    def get_center_x(self):
+        return self.x
+    
+    def get_center_y(self):
+        return self.y
+     
+    def get_radius(self):
+        return self.radius
+
 class Boule:
     def __init__(self, x, y, angle, eyes_list, pilot):
         self.x = x
@@ -13,13 +30,23 @@ class Boule:
         self.y += y_move
         self.angle += angle
 
+    def get_x(self):
+        return self.x
+    
+    def get_y(self):
+        return self.y
+    
+    def get_angle(self):
+        return self.angle
+    
+    
+
 class Eye:
     def __init__(self, lenght, angle):
         self.lenght =lenght
         self.angle = angle
     
 
-    
 
 class Spike:
     def __init__(self, x, y, pilot):
@@ -65,6 +92,8 @@ class Board:
     def __init__(self, width, height):
         self.boules = []
         self.spikes = []
+        self.width = width
+        self.height = height
 
     def run(self):
         for spike in self.spikes:
@@ -73,11 +102,17 @@ class Board:
     def add_spike(self, spike):
         self.spikes.append(spike)
 
+    def get_width(self):
+        return self.width
+    
+    def get_height(self):
+        return self.height
+
 
 
 def create_sim_test(width, height):
     new_b = Board(width,height)
-    for i in range(10):
+    for i in range(100):
         new_pilot = Spike_Pilot(width,height)
         new_spike = Spike(20*i, 10*i,new_pilot)
         new_b.add_spike(new_spike)
