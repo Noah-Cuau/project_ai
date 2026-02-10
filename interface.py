@@ -32,7 +32,13 @@ class Game:
 
                 color = "lightgrey" if (row + col) % 2 == 0 else "darkgrey"
                 pygame.draw.rect(self.screen, color, cell)
+
     def printf_spikes(self):
+        for spikes in self.board.spikes:
+            rect = pygame.Rect(spikes.get_x()*self.echelle, spikes.get_y()*self.echelle,10,10)
+            pygame.draw.rect(self.screen,"red",rect)
+
+    def printf_boules(self):
         for spikes in self.board.spikes:
             rect = pygame.Rect(spikes.get_x(), spikes.get_y(),10,10)
             pygame.draw.rect(self.screen,"red",rect)
