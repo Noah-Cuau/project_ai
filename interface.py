@@ -7,7 +7,7 @@ class Game:
         self.largeur = largeur
         self.hauteur = hauteur
         self.echelle = echelle
-        self.board = create_sim_test(largeur,hauteur)
+        self.board = create_sim_test(1000,1000)
         self.screen = pygame.display.set_mode((self.largeur * self.echelle,
                                                self.hauteur * self.echelle))
         self.clock = pygame.time.Clock()
@@ -35,7 +35,7 @@ class Game:
 
     def printf_spikes(self):
         for spikes in self.board.spikes:
-            rect = pygame.Rect(spikes.get_x()*self.echelle, spikes.get_y()*self.echelle,10,10)
+            rect = pygame.Rect(spikes.get_x(), spikes.get_y(),10,10)
             pygame.draw.rect(self.screen,"red",rect)
 
     def printf_boules(self):

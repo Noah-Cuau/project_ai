@@ -79,7 +79,7 @@ def create_sim_test(width, height):
     new_b = Board(width,height)
     for i in range(10):
         new_pilot = Spike_Pilot(width,height)
-        new_spike = Spike(10*i, 10*i,new_pilot)
+        new_spike = Spike(20*i, 10*i,new_pilot)
         new_b.add_spike(new_spike)
     return new_b
 
