@@ -158,22 +158,24 @@ class Board:
         for spike in self.spikes:
             spike.move()
             for boule in self.boules:
-                if boule.collide_spike(spike):
-                    boule.kill()
-        for food in self.foods:
-            for boule in self.boules:
-                if boule.collide_food(food):
-                    food.die()
-                    boule.eat()
-                if boule.energy == 0:
-                    boule.kill()
                 if boule.is_dead()==False:
                     if boule.collide_spike(spike):
                         boule.kill()
+            for boule in self.boules:
+                if boule.is_dead()==False:
+                        for food in self.foods:
+                            if food.get_eaten()==False:
+                                if boule.collide_food(food):
+                                    food.die()
+                                    boule.eat()
+                                if boule.energy == 0:
+                                    boule.kill()
+                                if boule.collide_spike(spike):
+                                    boule.kill()
         
         for boule in self.boules:
             boule.move()
-            boule.energy -= 10
+            boule.energy -= 2
             if boule.is_dead()==False:
                 boule.move()
             

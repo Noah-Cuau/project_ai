@@ -90,11 +90,11 @@ class Game:
         print(self.clock.tick(60))
 
 if __name__ == "__main__":
-    largeur =  1000
-    hauteur = 1000
+    largeur =  600
+    hauteur = 400
     nombre_spikes = 1
-    nombre_food = 50
-    nombre_boule = 10
+    nombre_food = 6
+    nombre_boule = 3
     board = create_sim_test(largeur,hauteur,nombre_spikes,nombre_food,nombre_boule)
     new_game = Game(
         largeur, hauteur,board,
