@@ -1,4 +1,5 @@
 from pygame import math
+import random
 
 class Circle:
     def __init__(self, x,y,radius):
@@ -119,9 +120,11 @@ class Board:
 
 def create_sim_test(width, height):
     new_b = Board(width,height)
-    for i in range(100):
+    for i in range(10000):
         new_pilot = Spike_Pilot(width,height)
-        new_spike = Spike(20*i, 10*i,new_pilot)
+        new_spike = Spike(random.randint(0,width), random.randint(0,height), new_pilot)
+        new_spike.pilot.up = random.choice([-1,1])
+        new_spike.pilot.right = random.choice([-1,1])
         new_b.add_spike(new_spike)
     return new_b
 

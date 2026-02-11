@@ -75,10 +75,10 @@ class Game:
         #self.printf_boules()
 
         pygame.display.flip()
-        self.clock.tick(60)
+        print(self.clock.tick(60))
 
 if __name__ == "__main__":
-    gen_size = [2000,200]
+    gen_size = [1000,1000]
     board = create_sim_test(gen_size[0],gen_size[1])
     new_game = Game(
         gen_size[0], gen_size[1],board,
