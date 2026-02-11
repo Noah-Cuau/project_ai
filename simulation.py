@@ -15,15 +15,18 @@ def collide_circle(c1_center, c1_radius, c2_center, c2_radius):
     
 
 class Boule:
-    def __init__(self, x, y, angle, eyes_list, pilot):
+    def __init__(self, x, y, angle, pilot):
         self.x = x
         self.y = y
         self.angle =angle
-        self.eye_list = eyes_list
+        
         self.pilot = pilot
         self.radius = 10
         self.health = 3
         self.dead = False
+
+    def set_eyes(self,eyes_list):
+        self.eyes = eyes_list
 
     def move(self):
         if self.pilot == False:
@@ -43,6 +46,8 @@ class Boule:
     def get_radius(self):
         return self.radius
     
+    def get_eyes(self):
+        return self.eyes
     def collide_spike(self, spike):
         return collide_circle((self.x,self.y), self.radius, (spike.x,spike.y), spike.radius)
     
@@ -55,11 +60,12 @@ class Boule:
     
 
 class Eye:
-    def __init__(self, lenght, angle):
+    def __init__(self, lenght, angle,parent_boule):
         self.lenght =lenght
         self.angle = angle
+        self.boule = parent_boule
     def get_vect(self):
-        return pygame.math.Vector2.from_polar(self.lenght,self.angle+self.boule.angle)
+        return pygame.math.Vector2.from_polar((self.lenght,self.angle+self.boule.angle))
     def get_end_sight(self):
         vect = self.get_vect()
         return (self.boule.x+vect[0], self.boule.y+vect[1])
@@ -143,11 +149,13 @@ class Board:
         for spike in self.spikes:
             spike.move()
             for boule in self.boules:
-                if boule.collide_spike(spike):
-                    boule.kill()
+                if boule.is_dead()==False:
+                    if boule.collide_spike(spike):
+                        boule.kill()
         
         for boule in self.boules:
-            boule.move()
+            if boule.is_dead()==False:
+                boule.move()
             
 
     def add_spike(self, spike):
@@ -164,10 +172,10 @@ class Board:
     def add_boule(self, boule):
         self.boules.append(boule)
 
-def even_spaced_eyes(nb_eyes,lenght):
+def even_spaced_eyes(nb_eyes,lenght,boule):
     new_list = []
     for i in range(nb_eyes):
-        new_list.append(Eye(lenght,i*(nb_eyes/360)))
+        new_list.append(Eye(lenght,i*(360/nb_eyes),boule))
     return new_list
 
 
@@ -184,9 +192,12 @@ def create_sim_test(width, height, nombre_spikes, nombre_foods, nombre_boule):
         new_b.add_food(new_food)
     
     for i in range(nombre_boule):
-        new_eyes = even_spaced_eyes(4, 10)
-        new_boule = Boule(random.randint(0, width), random.randint(0,height), 0, new_eyes, Spike_Pilot(width,height))
+        new_boule = Boule(random.randint(0, width), random.randint(0,height), 0, Spike_Pilot(width,height))
         new_b.add_boule(new_boule)
+
+        new_eyes = even_spaced_eyes(6, 35,new_b.boules[i])
+        new_boule.set_eyes(new_eyes)
+
 
 
         

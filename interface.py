@@ -12,6 +12,7 @@ class Game:
         self.grid_cols = grid_cols
         self.grid_rows = grid_rows
         self.board =board
+        self.show_eyes = True
 
         self.spike_w=self.spike_h = self.board.spikes[0].get_radius()
         #self.radius = self.board.boules[0].get_radius()
@@ -63,6 +64,12 @@ class Game:
         for boule in self.board.boules:
             if boule.is_dead()==False:
                 pygame.draw.circle(self.screen, "blue", (boule.get_x(), boule.get_y()),boule.get_radius())
+                for eye in boule.get_eyes():
+
+                    pygame.draw.line(self.screen, "yellow", (boule.x,boule.y), eye.get_end_sight())
+
+    def set_show_eyes(self, show_eye):
+        self.show_eyes = show_eye
 
     def run(self):
         for event in pygame.event.get():
@@ -84,7 +91,7 @@ class Game:
 if __name__ == "__main__":
     largeur =  1000
     hauteur = 1000
-    nombre_spikes = 50
+    nombre_spikes = 1
     nombre_food = 50
     nombre_boule = 10
     board = create_sim_test(largeur,hauteur,nombre_spikes,nombre_food,nombre_boule)
