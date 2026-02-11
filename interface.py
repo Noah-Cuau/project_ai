@@ -57,11 +57,12 @@ class Game:
 
     def printf_food(self):
         for food in self.board.foods:
-            pygame.draw.circle(self.screen, "green",(food.get_x(),food.get_y()),10)
+            if food.get_eaten() == False:
+                pygame.draw.circle(self.screen, "green",(food.get_x(),food.get_y()),food.get_radius())
 
     def printf_boules(self):
         for boule in self.board.boules:
-            if boule.is_dead()==False:
+            if boule.is_dead() == False:
                 pygame.draw.circle(self.screen, "blue", (boule.get_x(), boule.get_y()),boule.get_radius())
 
     def run(self):
