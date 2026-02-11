@@ -78,8 +78,13 @@ class Game:
         print(self.clock.tick(60))
 
 if __name__ == "__main__":
+<<<<<<< HEAD
     gen_size = [1000,1000]
     board = create_sim_test(gen_size[0],gen_size[1])
+=======
+    gen_size = [200,200, 5]
+    board = create_sim_test(gen_size[0],gen_size[1], gen_size[2])
+>>>>>>> 6e727921703df71659160480cff6ede56fa47b50
     new_game = Game(
         gen_size[0], gen_size[1],board,
         grid_cols=gen_size[0]//200, grid_rows=gen_size[1]//200  

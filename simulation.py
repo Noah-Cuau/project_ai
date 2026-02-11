@@ -82,13 +82,13 @@ class Spike_Pilot:
     
     def move(self, spike):
         if (self.up == 1):
-            if spike.y+1 > self.board_h:
+            if spike.y + spike.radius +1 > self.board_h:
                 self.up = -1
         elif spike.y-1 <0:
                 self.up =1
 
         if (self.right == 1):
-            if spike.x+1 > self.board_w:
+            if spike.x+ spike.radius+1 > self.board_w:
                 self.right = -1
         elif spike.x-1 <0:
                 self.right =1
@@ -118,9 +118,15 @@ class Board:
 
 
 
-def create_sim_test(width, height):
+def create_sim_test(width, height, nombre):
     new_b = Board(width,height)
+<<<<<<< HEAD
     for i in range(10000):
+=======
+    if nombre < 1:
+        nombre = 1
+    for i in range(nombre):
+>>>>>>> 6e727921703df71659160480cff6ede56fa47b50
         new_pilot = Spike_Pilot(width,height)
         new_spike = Spike(random.randint(0,width), random.randint(0,height), new_pilot)
         new_spike.pilot.up = random.choice([-1,1])
