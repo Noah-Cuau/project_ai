@@ -23,6 +23,7 @@ class Boule:
         self.pilot = pilot
         self.radius = 10
         self.health = 3
+        self.energy = 600
         self.dead = False
 
     def set_eyes(self,eyes_list):
@@ -45,12 +46,17 @@ class Boule:
     
     def get_radius(self):
         return self.radius
+    def get_energy(self):
+        return self.energy
+    def eat(self):
+        self.energy += 300
     
     def get_eyes(self):
         return self.eyes
     def collide_spike(self, spike):
         return collide_circle((self.x,self.y), self.radius, (spike.x,spike.y), spike.radius)
-    
+    def collide_food(self, food):
+        return collide_circle((self.x, self.y), self.radius, (food.x,food.y),food.radius)
     def kill(self):
         self.dead = True
 
@@ -101,16 +107,19 @@ class Spike:
         return self.radius
 
 class Food:
-    def __init__(self, x, y , eaten):
+    def __init__(self, x, y):
          self.x = x
          self.y = y
-         self.eaten = eaten
+         self.radius = 10
+         self.eaten = False
     def get_x(self):
         return self.x
     def get_y(self):
         return self.y
     def get_eaten(self):
         return self.eaten
+    def get_radius(self):
+        return self.radius
     def die(self):
         self.eaten = True
 
@@ -149,11 +158,22 @@ class Board:
         for spike in self.spikes:
             spike.move()
             for boule in self.boules:
+                if boule.collide_spike(spike):
+                    boule.kill()
+        for food in self.foods:
+            for boule in self.boules:
+                if boule.collide_food(food):
+                    food.die()
+                    boule.eat()
+                if boule.energy == 0:
+                    boule.kill()
                 if boule.is_dead()==False:
                     if boule.collide_spike(spike):
                         boule.kill()
         
         for boule in self.boules:
+            boule.move()
+            boule.energy -= 10
             if boule.is_dead()==False:
                 boule.move()
             
@@ -188,7 +208,7 @@ def create_sim_test(width, height, nombre_spikes, nombre_foods, nombre_boule):
         new_spike.pilot.right = random.choice([-1,1])
         new_b.add_spike(new_spike)
     for i in range(nombre_foods):
-        new_food = Food(random.randint(0,width),random.randint(0,height),False)
+        new_food = Food(random.randint(0,width),random.randint(0,height))
         new_b.add_food(new_food)
     
     for i in range(nombre_boule):
