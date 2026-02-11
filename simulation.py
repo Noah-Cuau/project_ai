@@ -15,12 +15,11 @@ def collide_circle(c1_center, c1_radius, c2_center, c2_radius):
     
 
 class Boule:
-    def __init__(self, x, y, angle, pilot):
+    def __init__(self, x, y, angle, ):
         self.x = x
         self.y = y
         self.angle =angle
-        
-        self.pilot = pilot
+        self.pilot = False;
         self.radius = 10
         self.health = 3
         self.energy = 600
@@ -30,16 +29,17 @@ class Boule:
         self.eyes = eyes_list
 
     def move(self):
-        if self.pilot == False:
-            pass
-        else:
-            self.pilot.move(self)
+        x,y,rot = self.pilot.get_move()
+        self.input_movement(x,y,rot)
        
     def get_x(self):
         return self.x
     
     def get_y(self):
         return self.y
+    
+    def set_pilot(self, pilot):
+        self.pilot = pilot
     
     def get_angle(self):
         return self.angle
@@ -62,6 +62,11 @@ class Boule:
 
     def is_dead(self):
         return self.dead
+    
+    def input_movement(self, x_channel, y_channel, rot_channel):
+        self.x += x_channel
+        self.y +=y_channel
+        self.angle +=rot_channel
     
     
 
@@ -146,6 +151,33 @@ class Spike_Pilot:
         spike.x += self.right
         spike.y += self.up
 
+class Default_boule_pilot:
+    def __init__(self,boule, board_w,board_h):
+        self.boule =boule
+        self.board_w = board_w
+        self.board_h = board_h
+        self.up = random.choice([-1, 1])
+        self.right = random.choice([-1, 1])
+
+    
+    def get_move(self):
+        if (self.up == 1):
+            if self.boule.y + self.boule.radius +1 > self.board_h:
+                self.up = -1
+        elif self.boule.y-1 <0:
+                self.up =1
+
+        if (self.right == 1):
+            if self.boule.x+ self.boule.radius+1 > self.board_w:
+                self.right = -1
+        elif self.boule.x-1 <0:
+                self.right =1
+        
+        return self.right, self.up,0
+
+
+         
+
 class Board:
     def __init__(self, width, height):
         self.boules = []
@@ -214,7 +246,8 @@ def create_sim_test(width, height, nombre_spikes, nombre_foods, nombre_boule):
         new_b.add_food(new_food)
     
     for i in range(nombre_boule):
-        new_boule = Boule(random.randint(0, width), random.randint(0,height), 0, Spike_Pilot(width,height))
+        new_boule = Boule(random.randint(0, width), random.randint(0,height), 0)
+        new_boule.set_pilot(Default_boule_pilot(new_boule, width, height))
         new_b.add_boule(new_boule)
 
         new_eyes = even_spaced_eyes(6, 35,new_b.boules[i])
