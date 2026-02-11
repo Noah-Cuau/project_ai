@@ -71,7 +71,19 @@ class Spike:
     def get_radius(self):
         return self.radius
 
-
+class Food:
+    def __init__(self, x, y , eaten):
+         self.x = x
+         self.y = y
+         self.eaten = eaten
+    def get_x(self):
+        return self.x
+    def get_y(self):
+        return self.y
+    def get_eaten(self):
+        return self.eaten
+    def die(self):
+        self.eaten = True
 
 class Spike_Pilot:
     def __init__(self, board_w, board_h):
@@ -100,6 +112,7 @@ class Board:
     def __init__(self, width, height):
         self.boules = []
         self.spikes = []
+        self.foods = []
         self.width = width
         self.height = height
 
@@ -115,23 +128,21 @@ class Board:
     
     def get_height(self):
         return self.height
+    def add_food(self, food):
+        self.foods.append(food)
 
 
-
-def create_sim_test(width, height, nombre):
+def create_sim_test(width, height, nombre_spikes, nombre_foods):
     new_b = Board(width,height)
-<<<<<<< HEAD
-    for i in range(10000):
-=======
-    if nombre < 1:
-        nombre = 1
-    for i in range(nombre):
->>>>>>> 6e727921703df71659160480cff6ede56fa47b50
+    for i in range(nombre_spikes):
         new_pilot = Spike_Pilot(width,height)
-        new_spike = Spike(random.randint(0,width), random.randint(0,height), new_pilot)
+        new_spike = Spike(random.randint(15,width-15), random.randint(15,height-15), new_pilot)
         new_spike.pilot.up = random.choice([-1,1])
         new_spike.pilot.right = random.choice([-1,1])
         new_b.add_spike(new_spike)
+    for i in range(nombre_foods):
+            new_food = Food(random.randint(0,width),random.randint(0,height),False)
+            new_b.add_food(new_food)
     return new_b
 
 if __name__ == "__main__":

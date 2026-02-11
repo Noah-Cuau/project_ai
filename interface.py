@@ -55,6 +55,10 @@ class Game:
             rect = pygame.Rect(int(spike.get_x()), int(spike.get_y()), self.spike_w, self.spike_h)
             pygame.draw.rect(self.screen, "red", rect)
 
+    def printf_food(self):
+        for food in self.board.foods:
+            pygame.draw.circle(self.screen, "green",(food.get_x(),food.get_y()),10)
+
     # def printf_boules(self):
     #     for boule in self.board.boules:
     #         px, py = self.grid_to_pixel(boule.get_x(), boule.get_y())
@@ -71,6 +75,7 @@ class Game:
         self.board.run()
 
         self.quadrillage()
+        self.printf_food()
         self.printf_spikes()
         #self.printf_boules()
 
@@ -78,16 +83,14 @@ class Game:
         print(self.clock.tick(60))
 
 if __name__ == "__main__":
-<<<<<<< HEAD
-    gen_size = [1000,1000]
-    board = create_sim_test(gen_size[0],gen_size[1])
-=======
-    gen_size = [200,200, 5]
-    board = create_sim_test(gen_size[0],gen_size[1], gen_size[2])
->>>>>>> 6e727921703df71659160480cff6ede56fa47b50
+    largeur =  1000
+    hauteur = 1000
+    nombre_spikes = 50
+    nombre_food = 50
+    board = create_sim_test(largeur,hauteur,nombre_spikes,nombre_food)
     new_game = Game(
-        gen_size[0], gen_size[1],board,
-        grid_cols=gen_size[0]//200, grid_rows=gen_size[1]//200  
+        largeur, hauteur,board,
+        grid_cols=largeur//200, grid_rows=hauteur//200  
     )
     while new_game.running:
         new_game.run()
