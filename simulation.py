@@ -84,6 +84,7 @@ class Eye:
         self.lenght =lenght
         self.angle = angle
         self.boule = parent_boule
+        self.saw_spike = False
     def get_vect(self):
         return pygame.math.Vector2.from_polar((self.lenght,self.angle+self.boule.angle))
     def get_end_sight(self):
@@ -93,11 +94,13 @@ class Eye:
    
     
     def see_for_spike(self, spike):
-        vect = self.get_vect
+        vect = self.get_vect()
         point = [self.boule.x, self.boule.y]
         for i in range(self.lenght):
             if point_in_circle(point, spike.radius, (spike.x, spike.y)):
                 return i/self.lenght
+            point[0]+=vect.x
+            point[1]+=vect.y
         return 1
 
 
@@ -109,7 +112,8 @@ class Spike:
         self.radius =10
 
     def move(self):
-        self.pilot.move(self)
+        if self.pilot != False:
+            self.pilot.move(self)
 
     def get_x(self):
         return self.x
@@ -119,6 +123,9 @@ class Spike:
     
     def get_radius(self):
         return self.radius
+    
+    def set_pilot(self,pilot):
+        self.pilot = pilot
 
 class Food:
     def __init__(self, x, y):
@@ -137,7 +144,7 @@ class Food:
     def die(self):
         self.eaten = True
 
-class Spike_Pilot:
+class Default_spike_pilot:
     def __init__(self, board_w, board_h):
             self.board_w = board_w
             self.board_h = board_h
@@ -202,17 +209,22 @@ class Board:
                 if boule.is_dead()==False:
                     if boule.collide_spike(spike):
                         boule.kill()
-            for boule in self.boules:
-                if boule.is_dead()==False:
-                        for food in self.foods:
-                            if food.get_eaten()==False:
-                                if boule.collide_food(food):
-                                    food.die()
-                                    boule.eat()
-                                if boule.energy == 0:
+    
+                    for food in self.foods:
+                        if food.get_eaten()==False:
+                            if boule.collide_food(food):
+                                food.die()
+                                boule.eat()
+                            if boule.energy == 0:
+                                boule.kill()
+                            if boule.collide_spike(spike):
                                     boule.kill()
-                                if boule.collide_spike(spike):
-                                    boule.kill()
+                    for eye in boule.get_eyes():
+                        print(eye.see_for_spike(spike))
+                        if eye.see_for_spike(spike)==1:
+                            eye.saw_spike = False
+                        else:
+                            eye.saw_spike = True
         
         for boule in self.boules:
             boule.starve()
@@ -250,7 +262,7 @@ def even_spaced_eyes(nb_eyes,lenght,boule):
 def create_sim_test(width, height, nombre_spikes, nombre_foods, nombre_boule):
     new_b = Board(width,height)
     for i in range(nombre_spikes):
-        new_pilot = Spike_Pilot(width,height)
+        new_pilot = Default_spike_pilot(width,height)
         new_spike = Spike(random.randint(15,width-15), random.randint(15,height-15), new_pilot)
         new_spike.pilot.up = random.choice([-1,1])
         new_spike.pilot.right = random.choice([-1,1])
@@ -264,7 +276,7 @@ def create_sim_test(width, height, nombre_spikes, nombre_foods, nombre_boule):
         new_boule.set_pilot(Default_boule_pilot(new_boule, width, height))
         new_b.add_boule(new_boule)
 
-        new_eyes = even_spaced_eyes(6, 35,new_b.boules[i])
+        new_eyes = even_spaced_eyes(1, 35,new_b.boules[i])
         new_boule.set_eyes(new_eyes)
 
 

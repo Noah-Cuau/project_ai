@@ -67,8 +67,12 @@ class Game:
             if boule.is_dead() == False:
                 pygame.draw.circle(self.screen, "blue", (boule.get_x(), boule.get_y()),boule.get_radius())
                 for eye in boule.get_eyes():
+                    if eye.saw_spike:
+                        pygame.draw.line(self.screen, "purple", (boule.x,boule.y), eye.get_end_sight())
+                    else:
+                         pygame.draw.line(self.screen, "purple", (boule.x,boule.y), eye.get_end_sight())
 
-                    pygame.draw.line(self.screen, "yellow", (boule.x,boule.y), eye.get_end_sight())
+                    
 
     def set_show_eyes(self, show_eye):
         self.show_eyes = show_eye
@@ -163,6 +167,7 @@ if __name__ == "__main__":
     nombre_food = 6
     nombre_boule = 3
     board = create_sim_test(largeur,hauteur,nombre_spikes,nombre_food,nombre_boule)
+    board.get_spikes()[0].set_pilot(False)
     new_game = Game(
         largeur, hauteur,board,
         grid_cols=largeur//200, grid_rows=hauteur//200  
