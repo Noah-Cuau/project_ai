@@ -19,18 +19,20 @@ class Boule:
         self.x = x
         self.y = y
         self.angle =angle
-        self.pilot = False;
+        self.pilot = False
         self.radius = 10
         self.health = 3
         self.energy = 600
         self.dead = False
+        self.immortal = False
 
     def set_eyes(self,eyes_list):
         self.eyes = eyes_list
 
     def move(self):
-        x,y,rot = self.pilot.get_move()
-        self.input_movement(x,y,rot)
+        if self.pilot !=False:
+            x,y,rot = self.pilot.get_move()
+            self.input_movement(x,y,rot)
        
     def get_x(self):
         return self.x
@@ -67,6 +69,13 @@ class Boule:
         self.x += x_channel
         self.y +=y_channel
         self.angle +=rot_channel
+
+    def make_immortal(self):
+        self.immortal = True
+
+    def starve(self):
+        if not self.immortal:
+            self.energy -=1
     
     
 
@@ -206,8 +215,7 @@ class Board:
                                     boule.kill()
         
         for boule in self.boules:
-            boule.move()
-            boule.energy -= 2
+            boule.starve()
             if boule.is_dead()==False:
                 boule.move()
             
@@ -225,6 +233,12 @@ class Board:
 
     def add_boule(self, boule):
         self.boules.append(boule)
+
+    def get_boules(self):
+        return self.boules
+    
+    def get_spikes(self):
+        return self.spikes
 
 def even_spaced_eyes(nb_eyes,lenght,boule):
     new_list = []

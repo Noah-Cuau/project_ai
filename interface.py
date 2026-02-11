@@ -23,6 +23,7 @@ class Game:
         self.screen = pygame.display.set_mode((self.win_w, self.win_h), pygame.RESIZABLE)
         self.clock = pygame.time.Clock()
         self.running = True
+        self.manual_control = False
 
         self.border = 5
 
@@ -76,6 +77,55 @@ class Game:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.running = False
+            if self.manual_control:
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_UP:
+                        self.up_pressed = True
+                    if event.key == pygame.K_DOWN:
+                        self.down_pressed = True
+                    if event.key == pygame.K_LEFT:
+                        self.left_pressed = True
+                    if event.key == pygame.K_RIGHT:
+                        self.right_pressed = True
+                    if event.key == pygame.K_a:
+                        self.a_pressed = True
+                    if event.key == pygame.K_z:
+                        self.z_pressed = True
+                    
+                if event.type == pygame.KEYUP:
+                    if event.key == pygame.K_UP:
+                        self.up_pressed = False
+                    if event.key == pygame.K_DOWN:
+                        self.down_pressed = False
+                    if event.key == pygame.K_LEFT:
+                        self.left_pressed = False
+                    if event.key == pygame.K_RIGHT:
+                        self.right_pressed = False
+                    if event.key == pygame.K_a:
+                        self.a_pressed = False
+                    if event.key == pygame.K_z:
+                        self.z_pressed = False
+                
+                
+                    
+        if self.manual_control:
+            x=y=rot = 0
+
+            if self.right_pressed:
+                x = 1
+            elif self.left_pressed:
+                x = -1
+
+            if self.up_pressed:
+                y = -1
+            elif self.down_pressed:
+                y = 1
+            if self.a_pressed:
+                rot = -1
+            elif self.z_pressed:
+                rot = 1
+            self.manual_control.input_movement(x,y,rot)
+
 
         self.screen.fill("white")
 
@@ -87,7 +137,24 @@ class Game:
         self.printf_boules()
 
         pygame.display.flip()
-        print(self.clock.tick(60))
+        self.clock.tick(120)
+
+    def set_manual_control(self, boule, immortal):
+        self.manual_control = boule
+        if immortal:
+            boule.make_immortal()
+        self.up_pressed = False
+        self.down_pressed = False
+        self.left_pressed = False
+        self.right_pressed = False
+        self.a_pressed = False
+        self.z_pressed = False
+        boule.set_pilot(False)
+
+   
+
+
+
 
 if __name__ == "__main__":
     largeur =  800
@@ -100,5 +167,8 @@ if __name__ == "__main__":
         largeur, hauteur,board,
         grid_cols=largeur//200, grid_rows=hauteur//200  
     )
+    #setup le controlle avec le clavier pour une boule (a mettre en commentaire pour désactiver)
+    #2iem argument pour rendre la boule immortelle ou non
+    new_game.set_manual_control(new_game.board.get_boules()[0], True)
     while new_game.running:
         new_game.run()
