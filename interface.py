@@ -61,7 +61,8 @@ class Game:
 
     def printf_boules(self):
         for boule in self.board.boules:
-            pygame.draw.circle(self.screen, "blue", (boule.get_x(), boule.get_y()),boule.get_radius())
+            if boule.is_dead()==False:
+                pygame.draw.circle(self.screen, "blue", (boule.get_x(), boule.get_y()),boule.get_radius())
 
     def run(self):
         for event in pygame.event.get():

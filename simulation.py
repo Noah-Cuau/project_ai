@@ -3,9 +3,16 @@ from math import sqrt
 import random
 
 def point_in_circle(point, radius_circle, center_circle):
-        x_dist =  center_circle[0] - point[0]
-        y_dist = center_circle[1] - point[1]
-        return sqrt(x_dist**2+y_dist**2) < radius_circle
+    return euclidien_dist(point, center_circle)< radius_circle
+
+def euclidien_dist(p1,p2):
+    x_dist = p2[0] - p1[0]
+    y_dist = p2[1] -p1[1]
+    return sqrt(x_dist**2+y_dist**2)
+
+def collide_circle(c1_center, c1_radius, c2_center, c2_radius):
+    return euclidien_dist(c1_center,c2_center) <c1_radius+c2_radius
+    
 
 class Boule:
     def __init__(self, x, y, angle, eyes_list, pilot):
@@ -16,6 +23,7 @@ class Boule:
         self.pilot = pilot
         self.radius = 10
         self.health = 3
+        self.dead = False
 
     def move(self):
         if self.pilot == False:
@@ -34,6 +42,15 @@ class Boule:
     
     def get_radius(self):
         return self.radius
+    
+    def collide_spike(self, spike):
+        return collide_circle((self.x,self.y), self.radius, (spike.x,spike.y), spike.radius)
+    
+    def kill(self):
+        self.dead = True
+
+    def is_dead(self):
+        return self.dead
     
     
 
@@ -125,9 +142,13 @@ class Board:
     def run(self):
         for spike in self.spikes:
             spike.move()
+            for boule in self.boules:
+                if boule.collide_spike(spike):
+                    boule.kill()
         
         for boule in self.boules:
             boule.move()
+            
 
     def add_spike(self, spike):
         self.spikes.append(spike)
