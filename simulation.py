@@ -203,34 +203,31 @@ class Board:
         self.height = height
 
     def run(self):
-        for spike in self.spikes:
-            spike.move()
-            for boule in self.boules:
-                if boule.is_dead()==False:
-                    if boule.collide_spike(spike):
-                        boule.kill()
-    
-                    for food in self.foods:
-                        if food.get_eaten()==False:
+        for boule in self.boules:
+            boule.starve()
+            if boule.is_dead() == False:
+                boule.move()
+                if boule.energy == 0:
+                    boule.kill()
+                    continue
+                for food in self.foods:
+                    if food.get_eaten() == False:
                             if boule.collide_food(food):
                                 food.die()
                                 boule.eat()
-                            if boule.energy == 0:
-                                boule.kill()
+        for spike in self.spikes:
+                    spike.move()
+                    for boule in self.boules:
+                        if boule.is_dead() == False:
                             if boule.collide_spike(spike):
-                                    boule.kill()
-                    for eye in boule.get_eyes():
-                        #print(eye.see_for_spike(spike))
-                        if eye.see_for_spike(spike)==1:
-                            eye.saw_spike = False
-                        else:
-                            eye.saw_spike = True
-        
-        for boule in self.boules:
-            boule.starve()
-            if boule.is_dead()==False:
-                boule.move()
-            
+                                boule.kill()
+                            for eye in boule.get_eyes():
+                                #print(eye.see_for_spike(spike))
+                                if eye.see_for_spike(spike)==1:
+                                    eye.saw_spike = False
+                                else:
+                                    eye.saw_spike = True
+
 
     def add_spike(self, spike):
         self.spikes.append(spike)

@@ -164,8 +164,8 @@ if __name__ == "__main__":
     largeur =  1000
     hauteur = 1000
     nombre_spikes = 1
-    nombre_food = 60
-    nombre_boule = 10
+    nombre_food = 200
+    nombre_boule = 100
     board = create_sim_test(largeur,hauteur,nombre_spikes,nombre_food,nombre_boule)
     board.get_spikes()[0].set_pilot(False)
     new_game = Game(
