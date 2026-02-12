@@ -70,7 +70,7 @@ class Game:
                     if eye.saw_spike:
                         pygame.draw.line(self.screen, "purple", (boule.x,boule.y), eye.get_end_sight())
                     else:
-                         pygame.draw.line(self.screen, "purple", (boule.x,boule.y), eye.get_end_sight())
+                         pygame.draw.line(self.screen, "yellow", (boule.x,boule.y), eye.get_end_sight())
 
                     
 
@@ -161,11 +161,11 @@ class Game:
 
 
 if __name__ == "__main__":
-    largeur =  800
+    largeur =  1000
     hauteur = 1000
     nombre_spikes = 1
-    nombre_food = 6
-    nombre_boule = 3
+    nombre_food = 60
+    nombre_boule = 10
     board = create_sim_test(largeur,hauteur,nombre_spikes,nombre_food,nombre_boule)
     board.get_spikes()[0].set_pilot(False)
     new_game = Game(

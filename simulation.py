@@ -94,7 +94,7 @@ class Eye:
    
     
     def see_for_spike(self, spike):
-        vect = self.get_vect()
+        vect = self.get_vect().normalize()
         point = [self.boule.x, self.boule.y]
         for i in range(self.lenght):
             if point_in_circle(point, spike.radius, (spike.x, spike.y)):
@@ -220,7 +220,7 @@ class Board:
                             if boule.collide_spike(spike):
                                     boule.kill()
                     for eye in boule.get_eyes():
-                        print(eye.see_for_spike(spike))
+                        #print(eye.see_for_spike(spike))
                         if eye.see_for_spike(spike)==1:
                             eye.saw_spike = False
                         else:
