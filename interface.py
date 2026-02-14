@@ -1,6 +1,5 @@
 import pygame
-from simulation import *
-
+from create_sim import *
 class Game:
     def __init__(self, win_w, win_h,board, grid_cols=10, grid_rows=10,
                 ):
@@ -14,7 +13,6 @@ class Game:
         self.board =board
         self.show_eyes = True
 
-        self.spike_w=self.spike_h = self.board.spikes[0].get_radius()
         #self.radius = self.board.boules[0].get_radius()
 
         #self.intern_surf = pygame.surface.Surface()
@@ -54,7 +52,7 @@ class Game:
 
     def printf_spikes(self):
         for spike in self.board.spikes:
-            rect = pygame.Rect(int(spike.get_x()), int(spike.get_y()), self.spike_w, self.spike_h)
+            rect = pygame.Rect(int(spike.get_x()), int(spike.get_y()), spike.get_radius(), spike.get_radius())
             pygame.draw.rect(self.screen, "red", rect)
 
     def printf_food(self):
@@ -163,17 +161,15 @@ class Game:
 if __name__ == "__main__":
     largeur =  1000
     hauteur = 1000
-    nombre_spikes = 1
-    nombre_food = 60
-    nombre_boule = 10
-    board = create_sim_test(largeur,hauteur,nombre_spikes,nombre_food,nombre_boule)
-    board.get_spikes()[0].set_pilot(False)
+    nombre_spikes = 0
+    nombre_food = 0
+    nombre_boule = 1
+    board = create_sim_test_nn(largeur,hauteur,nombre_spikes,nombre_food,nombre_boule)
     new_game = Game(
         largeur, hauteur,board,
         grid_cols=largeur//200, grid_rows=hauteur//200  
     )
     #setup le controlle avec le clavier pour une boule (a mettre en commentaire pour désactiver)
     #2iem argument pour rendre la boule immortelle ou non
-    new_game.set_manual_control(new_game.board.get_boules()[0], True)
     while new_game.running:
         new_game.run()

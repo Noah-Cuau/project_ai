@@ -1,7 +1,7 @@
 import pygame
 from math import sqrt
 import random
-
+import torch
 def point_in_circle(point, radius_circle, center_circle):
     return euclidien_dist(point, center_circle)< radius_circle
 
@@ -13,6 +13,29 @@ def euclidien_dist(p1,p2):
 def collide_circle(c1_center, c1_radius, c2_center, c2_radius):
     return euclidien_dist(c1_center,c2_center) <c1_radius+c2_radius
     
+class Eye:
+    def __init__(self, lenght, angle,parent_boule):
+        self.lenght =lenght
+        self.angle = angle
+        self.boule = parent_boule
+        self.saw_spike = False
+    def get_vect(self):
+        return pygame.math.Vector2.from_polar((self.lenght,self.angle+self.boule.angle))
+    def get_end_sight(self):
+        vect = self.get_vect()
+        return (self.boule.x+vect[0], self.boule.y+vect[1])
+    
+   
+    
+    def see_for_spike(self, spike):
+        vect = self.get_vect().normalize()
+        point = [self.boule.x, self.boule.y]
+        for i in range(self.lenght):
+            if point_in_circle(point, spike.radius, (spike.x, spike.y)):
+                return i/self.lenght
+            point[0]+=vect.x
+            point[1]+=vect.y
+        return 1
 
 class Boule:
     def __init__(self, x, y, angle, ):
@@ -53,8 +76,11 @@ class Boule:
     def eat(self):
         self.energy += 300
     
-    def get_eyes(self):
+    def get_eyes(self) ->list[Eye]:
         return self.eyes
+    
+    
+
     def collide_spike(self, spike):
         return collide_circle((self.x,self.y), self.radius, (spike.x,spike.y), spike.radius)
     def collide_food(self, food):
@@ -76,32 +102,19 @@ class Boule:
     def starve(self):
         if not self.immortal:
             self.energy -=1
+
+    def get_context(self):
+        tensor_context = torch.tensor(size = (3+self.nb_eyes_spike+self.nb_eyes_food))
+        tensor_context[0] = Boule.get_x()/self.b_width
+        tensor_context[1] = Boule.get_y()/self.b_height
+        tensor_context[2] = Boule.get_angle()/360
+        for i in range(self.nb_eyes_spike):
+            tensor_context[3+i] = 0
+
+        return tensor_context
     
     
 
-class Eye:
-    def __init__(self, lenght, angle,parent_boule):
-        self.lenght =lenght
-        self.angle = angle
-        self.boule = parent_boule
-        self.saw_spike = False
-    def get_vect(self):
-        return pygame.math.Vector2.from_polar((self.lenght,self.angle+self.boule.angle))
-    def get_end_sight(self):
-        vect = self.get_vect()
-        return (self.boule.x+vect[0], self.boule.y+vect[1])
-    
-   
-    
-    def see_for_spike(self, spike):
-        vect = self.get_vect().normalize()
-        point = [self.boule.x, self.boule.y]
-        for i in range(self.lenght):
-            if point_in_circle(point, spike.radius, (spike.x, spike.y)):
-                return i/self.lenght
-            point[0]+=vect.x
-            point[1]+=vect.y
-        return 1
 
 
 class Spike:
@@ -259,39 +272,12 @@ def even_spaced_eyes(nb_eyes,lenght,boule):
     return new_list
 
 
-def create_sim_test(width, height, nombre_spikes, nombre_foods, nombre_boule):
-    new_b = Board(width,height)
-    for i in range(nombre_spikes):
-        new_pilot = Default_spike_pilot(width,height)
-        new_spike = Spike(random.randint(15,width-15), random.randint(15,height-15), new_pilot)
-        new_spike.pilot.up = random.choice([-1,1])
-        new_spike.pilot.right = random.choice([-1,1])
-        new_b.add_spike(new_spike)
-    for i in range(nombre_foods):
-        new_food = Food(random.randint(0,width),random.randint(0,height))
-        new_b.add_food(new_food)
-    
-    for i in range(nombre_boule):
-        new_boule = Boule(random.randint(0, width), random.randint(0,height), 0)
-        new_boule.set_pilot(Default_boule_pilot(new_boule, width, height))
-        new_b.add_boule(new_boule)
-
-        new_eyes = even_spaced_eyes(1, 35,new_b.boules[i])
-        new_boule.set_eyes(new_eyes)
 
 
 
-        
+                       
 
-    return new_b
 
-if __name__ == "__main__":
-    b = create_sim_test(1000,1000)
-    for i in range(1000):
-        b.run()
-        for s in b.spikes:
-            if (s.x >1000) or (s.y >1000) or s.y<0 or s.x <0:
-                print("error at frame "+str(i))
         
     
     
