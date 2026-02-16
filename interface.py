@@ -10,7 +10,7 @@ class Game:
 
         self.grid_cols = grid_cols
         self.grid_rows = grid_rows
-        self.board =board
+        self.board : Board =board 
         self.show_eyes = True
 
         #self.radius = self.board.boules[0].get_radius()
@@ -53,7 +53,9 @@ class Game:
     def printf_spikes(self):
         for spike in self.board.spikes:
             rect = pygame.Rect(int(spike.get_x()), int(spike.get_y()), spike.get_radius(), spike.get_radius())
+            pygame.draw.circle(self.screen, "black", (int(spike.get_x()), int(spike.get_y())), spike.get_radius())
             pygame.draw.rect(self.screen, "red", rect)
+            
 
     def printf_food(self):
         for food in self.board.foods:
@@ -64,8 +66,14 @@ class Game:
         for boule in self.board.boules:
             if boule.is_dead() == False:
                 pygame.draw.circle(self.screen, "blue", (boule.get_x(), boule.get_y()),boule.get_radius())
-                for eye in boule.get_eyes():
-                    if eye.saw_spike:
+                for i,eye in enumerate(boule.get_food_eyes()):
+                    if boule.saw_by_food_eyes[i] !=1:
+                        pygame.draw.line(self.screen, "orange", (boule.x,boule.y), eye.get_end_sight())
+                    else:
+                         pygame.draw.line(self.screen, "green", (boule.x,boule.y), eye.get_end_sight())
+                
+                for i,eye in enumerate(boule.get_spike_eyes()):
+                    if boule.saw_by_spike_eyes[i] !=1:
                         pygame.draw.line(self.screen, "purple", (boule.x,boule.y), eye.get_end_sight())
                     else:
                          pygame.draw.line(self.screen, "yellow", (boule.x,boule.y), eye.get_end_sight())
@@ -161,14 +169,15 @@ class Game:
 if __name__ == "__main__":
     largeur =  1000
     hauteur = 1000
-    nombre_spikes = 0
-    nombre_food = 0
+    nombre_spikes = 10
+    nombre_food = 10
     nombre_boule = 1
-    board = create_sim_test_nn(largeur,hauteur,nombre_spikes,nombre_food,nombre_boule)
+    board = create_sim_test(largeur,hauteur,nombre_spikes,nombre_food,nombre_boule)
     new_game = Game(
         largeur, hauteur,board,
         grid_cols=largeur//200, grid_rows=hauteur//200  
     )
+    new_game.set_manual_control(new_game.board.boules[0], True)
     #setup le controlle avec le clavier pour une boule (a mettre en commentaire pour désactiver)
     #2iem argument pour rendre la boule immortelle ou non
     while new_game.running:

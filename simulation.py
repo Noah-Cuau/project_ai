@@ -25,8 +25,6 @@ class Eye:
         vect = self.get_vect()
         return (self.boule.x+vect[0], self.boule.y+vect[1])
     
-   
-    
     def see_for_spike(self, spike):
         vect = self.get_vect().normalize()
         point = [self.boule.x, self.boule.y]
@@ -36,9 +34,19 @@ class Eye:
             point[0]+=vect.x
             point[1]+=vect.y
         return 1
+    
+    def see_for_food(self, food):
+        vect = self.get_vect().normalize()
+        point = [self.boule.x, self.boule.y]
+        for i in range(self.lenght):
+            if point_in_circle(point, food.radius, (food.x, food.y)):
+                return i/self.lenght
+            point[0]+=vect.x
+            point[1]+=vect.y
+        return 1
 
 class Boule:
-    def __init__(self, x, y, angle, ):
+    def __init__(self, x, y, angle ):
         self.x = x
         self.y = y
         self.angle =angle
@@ -48,9 +56,24 @@ class Boule:
         self.energy = 600
         self.dead = False
         self.immortal = False
+        self.food_eyes = []
+        self.spike_eyes = []
+        self.nb_food_eye = 0
+        self.nb_spike_eye = 0
+        self.saw_by_food_eyes = []
+        self.saw_by_spike_eyes = []
 
-    def set_eyes(self,eyes_list):
-        self.eyes = eyes_list
+    def set_eyes(self,eyes_list,eye_type):
+        if eye_type == "spike":
+            self.spike_eyes = eyes_list
+            self.nb_spike_eye = len(self.spike_eyes)
+            self.saw_by_spike_eyes = [1]*self.nb_spike_eye
+            
+        
+        if eye_type == "food":
+            self.food_eyes = eyes_list
+            self.nb_food_eye = len(self.food_eyes)
+            self.saw_by_food_eyes = [1]* self.nb_food_eye 
 
     def move(self):
         if self.pilot !=False:
@@ -76,8 +99,11 @@ class Boule:
     def eat(self):
         self.energy += 300
     
-    def get_eyes(self) ->list[Eye]:
-        return self.eyes
+    def get_spike_eyes(self) ->list[Eye]:
+        return self.spike_eyes
+    
+    def get_food_eyes(self) ->list[Eye]:
+        return self.food_eyes
     
     
 
@@ -103,6 +129,26 @@ class Boule:
         if not self.immortal:
             self.energy -=1
 
+    def see_eyes(self,eye_type,object):
+        if eye_type == "spike":
+            for i in range(self.nb_spike_eye):
+                vision = self.spike_eyes[i].see_for_spike(object)
+                if vision !=1:
+                    self.saw_by_spike_eyes[i] = vision
+        if eye_type == "food":
+            for i in range(self.nb_food_eye):
+                vision = self.spike_eyes[i].see_for_food(object)
+                if vision !=1:
+                    self.saw_by_food_eyes[i] = vision
+
+    def reset_sight(self):
+        for i in range(self.nb_food_eye):
+            self.saw_by_food_eyes[i] = 1
+        for i in range(self.nb_spike_eye):
+            self.saw_by_spike_eyes[i] = 1
+        
+
+
     def get_context(self):
         tensor_context = torch.tensor(size = (3+self.nb_eyes_spike+self.nb_eyes_food))
         tensor_context[0] = Boule.get_x()/self.b_width
@@ -112,6 +158,8 @@ class Boule:
             tensor_context[3+i] = 0
 
         return tensor_context
+    
+    
     
     
 
@@ -218,12 +266,14 @@ class Board:
     def run(self):
         for boule in self.boules:
             boule.starve()
+            boule.reset_sight()
             if boule.is_dead() == False:
                 boule.move()
                 if boule.energy == 0:
                     boule.kill()
                     continue
                 for food in self.foods:
+                    boule.see_eyes("food", food)
                     if food.get_eaten() == False:
                             if boule.collide_food(food):
                                 food.die()
@@ -234,12 +284,7 @@ class Board:
                         if boule.is_dead() == False:
                             if boule.collide_spike(spike):
                                 boule.kill()
-                            for eye in boule.get_eyes():
-                                #print(eye.see_for_spike(spike))
-                                if eye.see_for_spike(spike)==1:
-                                    eye.saw_spike = False
-                                else:
-                                    eye.saw_spike = True
+                            boule.see_eyes("spike", spike)
 
 
     def add_spike(self, spike):
@@ -262,10 +307,10 @@ class Board:
     def get_spikes(self):
         return self.spikes
 
-def even_spaced_eyes(nb_eyes,lenght,boule):
+def even_spaced_eyes(nb_eyes,offset,lenght,boule):
     new_list = []
     for i in range(nb_eyes):
-        new_list.append(Eye(lenght,i*(360/nb_eyes),boule))
+        new_list.append(Eye(lenght,i*(360/nb_eyes)+offset,boule))
     return new_list
 
 
