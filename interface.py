@@ -52,8 +52,8 @@ class Game:
 
     def printf_spikes(self):
         for spike in self.board.spikes:
-            rect = pygame.Rect(int(spike.get_x()), int(spike.get_y()), spike.get_radius(), spike.get_radius())
-            pygame.draw.circle(self.screen, "black", (int(spike.get_x()), int(spike.get_y())), spike.get_radius())
+            rect = pygame.Rect(spike.get_x()-(spike.get_radius()*0.70), spike.get_y()-(spike.get_radius()*0.70), spike.get_radius()*1.41, spike.get_radius()*1.41)
+            #pygame.draw.circle(self.screen, "black", (spike.get_x(), spike.get_y()), spike.get_radius())
             pygame.draw.rect(self.screen, "red", rect)
             
 
@@ -169,15 +169,15 @@ class Game:
 if __name__ == "__main__":
     largeur =  1000
     hauteur = 1000
-    nombre_spikes = 10
-    nombre_food = 10
+    nombre_spikes = 0
+    nombre_food = 100
     nombre_boule = 1
-    board = create_sim_test(largeur,hauteur,nombre_spikes,nombre_food,nombre_boule)
+    board = create_sim_test_nn(largeur,hauteur,nombre_spikes,nombre_food,nombre_boule)
     new_game = Game(
         largeur, hauteur,board,
         grid_cols=largeur//200, grid_rows=hauteur//200  
     )
-    new_game.set_manual_control(new_game.board.boules[0], True)
+    #new_game.set_manual_control(new_game.board.boules[0], True)
     #setup le controlle avec le clavier pour une boule (a mettre en commentaire pour désactiver)
     #2iem argument pour rendre la boule immortelle ou non
     while new_game.running:

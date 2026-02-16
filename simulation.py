@@ -46,7 +46,7 @@ class Eye:
         return 1
 
 class Boule:
-    def __init__(self, x, y, angle ):
+    def __init__(self, x, y, angle,board ):
         self.x = x
         self.y = y
         self.angle =angle
@@ -62,6 +62,8 @@ class Boule:
         self.nb_spike_eye = 0
         self.saw_by_food_eyes = []
         self.saw_by_spike_eyes = []
+        self.board : Board = board
+        
 
     def set_eyes(self,eyes_list,eye_type):
         if eye_type == "spike":
@@ -78,6 +80,8 @@ class Boule:
     def move(self):
         if self.pilot !=False:
             x,y,rot = self.pilot.get_move()
+           
+                
             self.input_movement(x,y,rot)
        
     def get_x(self):
@@ -118,6 +122,14 @@ class Boule:
         return self.dead
     
     def input_movement(self, x_channel, y_channel, rot_channel):
+        if((x_channel + self.x) - self.radius <0):
+                x_channel = 0
+        elif (x_channel+self.x +self.radius>self.board.width):
+                x_channel = 0
+        if ((y_channel+self.y)-self.radius<0):
+                y_channel= 0
+        elif (y_channel +self.y+self.radius >self.board.height):
+                y_channel = 0
         self.x += x_channel
         self.y +=y_channel
         self.angle +=rot_channel
@@ -137,7 +149,7 @@ class Boule:
                     self.saw_by_spike_eyes[i] = vision
         if eye_type == "food":
             for i in range(self.nb_food_eye):
-                vision = self.spike_eyes[i].see_for_food(object)
+                vision = self.food_eyes[i].see_for_food(object)
                 if vision !=1:
                     self.saw_by_food_eyes[i] = vision
 
@@ -266,18 +278,20 @@ class Board:
     def run(self):
         for boule in self.boules:
             boule.starve()
-            boule.reset_sight()
+            
             if boule.is_dead() == False:
                 boule.move()
                 if boule.energy == 0:
                     boule.kill()
                     continue
+                boule.reset_sight()
+
                 for food in self.foods:
-                    boule.see_eyes("food", food)
                     if food.get_eaten() == False:
                             if boule.collide_food(food):
                                 food.die()
                                 boule.eat()
+                            boule.see_eyes("food", food)
         for spike in self.spikes:
                     spike.move()
                     for boule in self.boules:
