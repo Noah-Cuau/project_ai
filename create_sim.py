@@ -35,7 +35,7 @@ def create_sim_test(width, height, nombre_spikes, nombre_foods, nombre_boule):
 
 
 def create_sim_test_nn(width, height, nombre_spikes, nombre_foods, nombre_boule):
-    new_b = create_sim_test(width, height, nombre_spikes, nombre_foods, 0)
+    new_b = create_sim_test(1000, 1000, nombre_spikes, nombre_foods, 0)
     for i in range(nombre_boule):
         new_boule = Boule(random.randint(0, width), random.randint(0,height), 0, new_b)
         new_boule.set_pilot(Default_boule_pilot(new_boule, width, height))

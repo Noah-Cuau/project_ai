@@ -1,15 +1,16 @@
 import pygame
 from create_sim import *
 class Game:
-    def __init__(self, win_w, win_h,board, grid_cols=10, grid_rows=10,
+    def __init__(self, win_w, win_h,board
                 ):
         pygame.init()
 
         self.win_w = win_w
         self.win_h = win_h
-
-        self.grid_cols = grid_cols
-        self.grid_rows = grid_rows
+        self.h = 1000
+        self.l = 1000
+        self.grid_cols = win_h
+        self.grid_rows = win_w
         self.board : Board =board 
         self.show_eyes = True
 
@@ -18,7 +19,7 @@ class Game:
         #self.intern_surf = pygame.surface.Surface()
     
 
-        self.screen = pygame.display.set_mode((self.win_w, self.win_h), pygame.RESIZABLE)
+        self.screen = pygame.display.set_mode((self.l, self.h), pygame.RESIZABLE)
         self.clock = pygame.time.Clock()
         self.running = True
         self.manual_control = False
@@ -167,15 +168,14 @@ class Game:
 
 
 if __name__ == "__main__":
-    largeur =  1000
-    hauteur = 1000
+    largeur =  10
+    hauteur = 10
     nombre_spikes = 0
     nombre_food = 50
     nombre_boule = 5
     board = create_sim_test_nn(largeur,hauteur,nombre_spikes,nombre_food,nombre_boule)
     new_game = Game(
         largeur, hauteur,board,
-        grid_cols=largeur//200, grid_rows=hauteur//200  
     )
     #new_game.set_manual_control(new_game.board.boules[0], True)
     #setup le controlle avec le clavier pour une boule (a mettre en commentaire pour désactiver)
