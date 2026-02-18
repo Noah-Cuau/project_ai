@@ -36,18 +36,20 @@ def create_sim_test(width, height, nombre_spikes, nombre_foods, nombre_boule):
 
 def create_sim_test_nn(width, height, nombre_spikes, nombre_foods, nombre_boule):
     new_b = create_sim_test(width, height, nombre_spikes, nombre_foods, 0)
-    
-    new_boule = Boule(random.randint(0, width), random.randint(0,height), 0,new_b)
-    new_b.add_boule(new_boule)
-    new_eyes = even_spaced_eyes(4,0, 35,new_boule)
-    new_boule.set_eyes(new_eyes,"spike")
-    new_eyes = even_spaced_eyes(4,35, 35,new_boule)
-    new_boule.set_eyes(new_eyes,"food")
+    for i in range(nombre_boule):
+        new_boule = Boule(random.randint(0, width), random.randint(0,height), 0, new_b)
+        new_boule.set_pilot(Default_boule_pilot(new_boule, width, height))
+        new_b.add_boule(new_boule)
 
-    new_boule.set_pilot(Boule_NN_Pilot(new_boule,Boule_NN(new_boule, new_b), new_b))
-    new_boule.make_immortal()
-    new_boule.x = 500
-    new_boule.y=500
+        new_eyes = even_spaced_eyes(4,0, 35,new_b.boules[i])
+        new_boule.set_eyes(new_eyes,"food")
+
+        new_eyes = even_spaced_eyes(4,45, 35,new_b.boules[i])
+        new_boule.set_eyes(new_eyes,"spike")
+        new_boule.set_pilot(Boule_NN_Pilot(new_boule,Boule_NN(new_boule, new_b), new_b))
+        new_boule.make_immortal()
+    
+   
     return new_b
         
 
