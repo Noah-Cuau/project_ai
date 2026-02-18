@@ -19,7 +19,8 @@ class Game:
         #self.intern_surf = pygame.surface.Surface()
     
 
-        self.screen = pygame.display.set_mode((self.l, self.h), pygame.RESIZABLE)
+        self.screen = pygame.surface.Surface((board.width,board.height))
+        self.output_screen = pygame.display.set_mode((win_h, win_w), pygame.RESIZABLE)
         self.clock = pygame.time.Clock()
         self.running = True
         self.manual_control = False
@@ -138,14 +139,14 @@ class Game:
             self.manual_control.input_movement(x,y,rot)
 
 
+        self.board.run()
         self.screen.fill("white")
 
-        self.board.run()
-
-        self.quadrillage()
+        #self.quadrillage()
         self.printf_food()
         self.printf_spikes()
         self.printf_boules()
+        self.output_screen.blit(pygame.transform.scale(self.screen, (self.win_w,self.win_h)), (0,0))
 
         pygame.display.flip()
         self.clock.tick(120)
@@ -168,14 +169,16 @@ class Game:
 
 
 if __name__ == "__main__":
-    largeur =  10
-    hauteur = 10
+    largeur =  500
+    hauteur = 500
+    res_width = 1000
+    res_height = 1000
     nombre_spikes = 0
     nombre_food = 50
     nombre_boule = 5
     board = create_sim_test_nn(largeur,hauteur,nombre_spikes,nombre_food,nombre_boule)
     new_game = Game(
-        largeur, hauteur,board,
+        res_width, res_height,board,
     )
     #new_game.set_manual_control(new_game.board.boules[0], True)
     #setup le controlle avec le clavier pour une boule (a mettre en commentaire pour désactiver)
