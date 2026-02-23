@@ -3,25 +3,22 @@ from torch import nn
 from simulation import Boule, Eye, Board
 
 class Boule_NN(nn.Module):
-    def __init__(self,  boule:Boule, board:Board):
+    def __init__(self):
         super().__init__()
-        self.boule = boule
-        self.nb_eyes_spike = len(boule.get_spike_eyes())
-        self.nb_eyes_food =  len(boule.get_food_eyes())
 
-        self.layer_1 = nn.Linear(in_features=3+self.nb_eyes_spike+self.nb_eyes_food, out_features=10)
-        self.layer_2 = nn.Linear(in_features=10, out_features=10)
-        self.layer_3 = nn.Linear(in_features=10, out_features=3)
-        self.b_width = board.get_width()
-        self.b_height = board.get_height()
-        self.sigmoid = nn.Sigmoid()
-       
+        self.model = nn.Sequential(
+            nn.Linear(12, 32),
+            nn.ReLU(),
+            nn.Linear(32, 32),
+            nn.ReLU(),
+            nn.Linear(32, 3)
+        )
 
-    def forward(self, boule_input:torch.Tensor):
-        return  ((self.sigmoid((self.layer_3(self.layer_2(self.layer_1(boule_input)))))))
-    
-    
-    
+    def forward(self, x):
+        return self.model(x)
+
+
+
 
 class Boule_NN_Pilot:
     def __init__(self,boule,NN,board):
@@ -49,13 +46,7 @@ class Boule_NN_Pilot:
         return tensor_context
     
     def get_move(self):
-        tensor = self.NN.forward(self.get_context())
+        tensor = self.NN.forward(self.boule.get_nn_input())
         print(tensor)
         return round(float(tensor[0])), round(float(tensor[1])), round(float(tensor[2]))
 
-
-
-
-
-    
-    

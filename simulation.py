@@ -170,13 +170,24 @@ class Boule:
             tensor_context[3+i] = 0
 
         return tensor_context
-    
-    
-    
-    
+    def get_nn_input(self):
+        inputs = []
 
+        inputs.append(self.x / self.board.width)
+        inputs.append(self.y / self.board.height)
 
+        inputs.append(self.angle / 360)
 
+        inputs.append(self.energy / 1000)
+
+        inputs.extend(self.saw_by_spike_eyes)
+
+        inputs.extend(self.saw_by_food_eyes)
+
+        return torch.tensor(inputs, dtype=torch.float32)
+
+    
+   
 class Spike:
     def __init__(self, x, y, pilot):
         self.x = x

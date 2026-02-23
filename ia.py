@@ -56,7 +56,7 @@ loss_fn = nn.L1Loss()
 optimizer = torch.optim.SGD(params=model_0.parameters(),
                             lr=0.01)
 print(model_0.state_dict())
-epochs = 10000
+epochs = 1750
 
 
 zero = torch.zeros(1,5,2)
@@ -65,24 +65,29 @@ zero1 = torch.zeros(1,5,2)
 new_zero = torch.cat((zero, zero1), dim = 0)
 print(new_zero)
 
-# for epoch in range(epochs):
-#     model_0.train()
+for epoch in range(epochs):
+    model_0.train()
 
-#     y_pred = model_0(X_train)
+    y_pred = model_0(X_train)
 
-#     loss = loss_fn(y_pred,y_train)
+    loss = loss_fn(y_pred,y_train)
 
-#     optimizer.zero_grad()
+    optimizer.zero_grad()
 
-#     loss.backward()
+    loss.backward()
 
-#     optimizer.step()
+    optimizer.step()
 
-#     model_0.eval()
+    model_0.eval()
 
 
-# with torch.inference_mode():
-#      y_preds = model_0(X_test)
+    with torch.inference_mode():
+        test_pred = model_0(X_test)
 
-# plot_prediction(predictions=y_preds)
+        test_loss = loss_fn(test_pred,y_test)
+    if epoch%10 == 0:
+        print(test_loss)
+
+
+
 

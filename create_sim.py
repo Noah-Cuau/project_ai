@@ -2,6 +2,68 @@ from simulation import *
 
 from ai_boule import *
 
+import torch
+import random
+
+
+def create_constant_sim(width, height):
+
+    random.seed(42)
+    torch.manual_seed(42)
+
+    board = Board(width, height)
+
+    spike_positions = [
+        (width * 0.2, height * 0.2),
+        (width * 0.8, height * 0.2),
+        (width * 0.2, height * 0.8),
+        (width * 0.8, height * 0.8),
+        (width * 0.5, height * 0.5),
+    ]
+
+    for x, y in spike_positions:
+        pilot = Default_spike_pilot(width, height)
+        spike = Spike(int(x), int(y), pilot)
+
+        pilot.up = 1
+        pilot.right = -1
+
+        board.add_spike(spike)
+
+    grid_size = 5
+    x_spacing = width / (grid_size + 1)
+    y_spacing = height / (grid_size + 1)
+
+    for i in range(1, grid_size + 1):
+        for j in range(1, grid_size + 1):
+            food = Food(int(i * x_spacing), int(j * y_spacing))
+            board.add_food(food)
+
+    boule_positions = [
+        (width * 0.1, height * 0.5),
+        (width * 0.9, height * 0.5),
+        (width * 0.5, height * 0.1),
+        (width * 0.5, height * 0.9),
+        (width * 0.5, height * 0.3),
+    ]
+
+    for x, y in boule_positions:
+        boule = Boule(int(x), int(y), 0, board)
+        board.add_boule(boule)
+
+        eyes_food = even_spaced_eyes(4, 0, 40, boule)
+        boule.set_eyes(eyes_food, "food")
+
+        eyes_spike = even_spaced_eyes(4, 45, 40, boule)
+        boule.set_eyes(eyes_spike, "spike")
+
+        boule.set_pilot(Boule_NN_Pilot(boule, Boule_NN(), board))
+
+
+
+    return board
+
+
 
 def create_sim_test(width, height, nombre_spikes, nombre_foods, nombre_boule):
     new_b = Board(width,height)
@@ -46,7 +108,7 @@ def create_sim_test_nn(width, height, nombre_spikes, nombre_foods, nombre_boule)
 
         new_eyes = even_spaced_eyes(4,45, 35,new_b.boules[i])
         new_boule.set_eyes(new_eyes,"spike")
-        new_boule.set_pilot(Boule_NN_Pilot(new_boule,Boule_NN(new_boule, new_b), new_b))
+        new_boule.set_pilot(Boule_NN_Pilot(new_boule,Boule_NN(), new_b))
         new_boule.make_immortal()
     
    

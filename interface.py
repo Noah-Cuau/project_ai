@@ -1,5 +1,6 @@
 import pygame
 from create_sim import *
+from create_sim import create_constant_sim
 class Game:
     def __init__(self, win_w, win_h,board
                 ):
@@ -173,12 +174,13 @@ if __name__ == "__main__":
     hauteur = 500
     res_width = 1000
     res_height = 1000
-    nombre_spikes = 0
+    nombre_spikes = 5
     nombre_food = 50
-    nombre_boule = 1
+    nombre_boule = 10
     board = create_sim_test_nn(largeur,hauteur,nombre_spikes,nombre_food,nombre_boule)
+    const_board = create_constant_sim(500,500)
     new_game = Game(
-        res_width, res_height,board,
+        res_width, res_height,const_board,
     )
     new_game.set_manual_control(new_game.board.boules[0], True)
     #setup le controlle avec le clavier pour une boule (a mettre en commentaire pour désactiver)
