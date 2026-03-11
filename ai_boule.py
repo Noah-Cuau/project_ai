@@ -47,6 +47,5 @@ class Boule_NN_Pilot:
     
     def get_move(self):
         tensor = self.NN.forward(self.boule.get_nn_input())
-        print(tensor)
         return round(float(tensor[0])), round(float(tensor[1])), round(float(tensor[2]))
 
