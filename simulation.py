@@ -2,6 +2,18 @@ import pygame
 from math import sqrt
 import random
 import torch
+import numpy as np
+
+def create_circle_mask(radius, tolerance):
+    mask = []
+    for i in range(-radius, radius+1):
+        for j in range(-radius, radius+1):
+            r = (i ** 2) + (j ** 2)
+            if radius**2-tolerance <r<radius**2+tolerance:
+                mask.append((i,j))
+    return mask
+     
+
 def point_in_circle(point, radius_circle, center_circle):
     return euclidien_dist(point, center_circle)< radius_circle
 
@@ -63,6 +75,7 @@ class Boule:
         self.saw_by_food_eyes = []
         self.saw_by_spike_eyes = []
         self.board : Board = board
+        self.mask = create_circle_mask(self.radius,5)
         
 
     def set_eyes(self,eyes_list,eye_type):
@@ -194,6 +207,8 @@ class Spike:
         self.y = y
         self.pilot = pilot
         self.radius =10
+        self.mask = create_circle_mask(self.radius,5)
+
 
     def move(self):
         if self.pilot != False:
@@ -217,6 +232,8 @@ class Food:
          self.y = y
          self.radius = 10
          self.eaten = False
+         self.mask = create_circle_mask(self.radius, 5)
+
     def get_x(self):
         return self.x
     def get_y(self):
@@ -285,6 +302,9 @@ class Board:
         self.foods = []
         self.width = width
         self.height = height
+        self.food_collision = np.zeros((width,height))
+        self.spike_collision =  np.zeros((width,height))
+        
 
     def run(self):
         for boule in self.boules:
@@ -312,6 +332,13 @@ class Board:
                             boule.see_eyes("spike", spike)
 
 
+    def set_collision_food(self, food):
+        for vec in food.mask:
+            x = vec[0] +food.x
+            y = vec[1] +food.y
+            if (0<x<self.width) and (0<y<self.height):
+                self.food_collision[x][y] = 1
+
     def add_spike(self, spike):
         self.spikes.append(spike)
 
@@ -322,6 +349,7 @@ class Board:
         return self.height
     def add_food(self, food):
         self.foods.append(food)
+
 
     def add_boule(self, boule):
         self.boules.append(boule)
