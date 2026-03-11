@@ -1,6 +1,7 @@
 import pygame
 from create_sim import *
 from create_sim import create_constant_sim
+import time
 class Game:
     def __init__(self, win_w, win_h,board
                 ):
@@ -87,6 +88,7 @@ class Game:
         self.show_eyes = show_eye
 
     def run(self):
+        t0 = time.time()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.running = False
@@ -151,6 +153,8 @@ class Game:
 
         pygame.display.flip()
         self.clock.tick(120)
+        t = round(time.time() - t0,4)
+        print(f"\rTime to compute frame: {t}", end="", flush=True)
 
     def set_manual_control(self, boule, immortal):
         self.manual_control = boule
@@ -174,13 +178,13 @@ if __name__ == "__main__":
     hauteur = 500
     res_width = 1000
     res_height = 1000
-    nombre_spikes = 5
+    nombre_spikes = 0
     nombre_food = 50
-    nombre_boule = 10
-    board = create_sim_test_nn(largeur,hauteur,nombre_spikes,nombre_food,nombre_boule)
-    const_board = create_constant_sim(500,500)
+    nombre_boule = 64
+    board = create_sim_test(largeur,hauteur,nombre_spikes,nombre_food,nombre_boule)
+    #const_board = create_constant_sim(500,500)
     new_game = Game(
-        res_width, res_height,const_board,
+        res_width, res_height,board,
     )
     new_game.set_manual_control(new_game.board.boules[0], True)
     #setup le controlle avec le clavier pour une boule (a mettre en commentaire pour désactiver)

@@ -4,6 +4,8 @@ import random
 import torch
 import numpy as np
 
+TOLERANCE_MASK = 5
+COLLISION_GRID_MARGIN = 80
 def create_circle_mask(radius, tolerance):
     mask = []
     for i in range(-radius, radius+1):
@@ -13,6 +15,26 @@ def create_circle_mask(radius, tolerance):
                 mask.append((i,j))
     return mask
      
+def widden_mask(mask):
+    new_mask = []
+    for vect in mask:
+        new_mask.append(vect)
+    for vect in mask:
+        x = vect[0]
+        y = vect[1]
+        new_x = False
+        new_y = False
+        if x>0:
+            new_x = x-1
+        if x<0:
+            new_x = x+1
+        if y>0:
+            new_y = y-1
+        if y<0:
+            new_y = y+1
+        if new_x!=False and new_y!=False:
+            new_mask.append((new_x, new_y))
+        
 
 def point_in_circle(point, radius_circle, center_circle):
     return euclidien_dist(point, center_circle)< radius_circle
@@ -49,12 +71,30 @@ class Eye:
     
     def see_for_food(self, food):
         vect = self.get_vect().normalize()
-        point = [self.boule.x, self.boule.y]
+        point = [self.boule.x +COLLISION_GRID_MARGIN/2, self.boule.y+COLLISION_GRID_MARGIN/2]
         for i in range(self.lenght):
             if point_in_circle(point, food.radius, (food.x, food.y)):
                 return i/self.lenght
             point[0]+=vect.x
             point[1]+=vect.y
+        return 1
+    
+    def see_for_food2(self, collision_ref):
+        vect = self.get_vect().normalize()
+        intern_point = [
+                self.boule.x +int(COLLISION_GRID_MARGIN/2), 
+                self.boule.y+int(COLLISION_GRID_MARGIN/2)
+        ]
+        x = int(intern_point[0])
+        y = int(intern_point[1])
+        for i in range(self.lenght):
+            if collision_ref[x][y]!=0:
+                return i/self.lenght
+            intern_point[0]+=vect.x
+            intern_point[1]+=vect.y
+            x = int(intern_point[0])
+            y = int(intern_point[1])
+
         return 1
 
 class Boule:
@@ -75,7 +115,7 @@ class Boule:
         self.saw_by_food_eyes = []
         self.saw_by_spike_eyes = []
         self.board : Board = board
-        self.mask = create_circle_mask(self.radius,5)
+        self.mask = create_circle_mask(self.radius,TOLERANCE_MASK)
         
 
     def set_eyes(self,eyes_list,eye_type):
@@ -166,11 +206,21 @@ class Boule:
                 if vision !=1:
                     self.saw_by_food_eyes[i] = vision
 
+    def see_eyes2(self, eye_type,collision_ref):
+        if eye_type == "f":
+            for i in range(self.nb_food_eye):
+                vision = self.food_eyes[i].see_for_food2(collision_ref)
+                if vision !=1:
+                    self.saw_by_food_eyes[i] = vision
+
+
     def reset_sight(self):
         for i in range(self.nb_food_eye):
             self.saw_by_food_eyes[i] = 1
         for i in range(self.nb_spike_eye):
             self.saw_by_spike_eyes[i] = 1
+
+    
         
 
 
@@ -207,7 +257,7 @@ class Spike:
         self.y = y
         self.pilot = pilot
         self.radius =10
-        self.mask = create_circle_mask(self.radius,5)
+        self.mask = widden_mask(create_circle_mask(self.radius,5))
 
 
     def move(self):
@@ -232,7 +282,8 @@ class Food:
          self.y = y
          self.radius = 10
          self.eaten = False
-         self.mask = create_circle_mask(self.radius, 5)
+         self.mask = create_circle_mask(self.radius, TOLERANCE_MASK)
+         self.id = False
 
     def get_x(self):
         return self.x
@@ -244,6 +295,10 @@ class Food:
         return self.radius
     def die(self):
         self.eaten = True
+    def set_id(self,id):
+        self.id =id
+
+        
 
 class Default_spike_pilot:
     def __init__(self, board_w, board_h):
@@ -300,44 +355,57 @@ class Board:
         self.boules = []
         self.spikes = []
         self.foods = []
+        self.collision_grid_margin = COLLISION_GRID_MARGIN
         self.width = width
         self.height = height
-        self.food_collision = np.zeros((width,height))
-        self.spike_collision =  np.zeros((width,height))
+        self.food_collision = np.zeros((width+self.collision_grid_margin,height+self.collision_grid_margin))
+        self.spike_collision =  np.zeros((width+self.collision_grid_margin,height+self.collision_grid_margin))
+        self.last_used_id_food = 0
         
 
     def run(self):
+        
         for boule in self.boules:
-            boule.starve()
-            
-            if boule.is_dead() == False:
-                boule.move()
-                if boule.energy == 0:
-                    boule.kill()
-                    continue
-                boule.reset_sight()
+            boule.reset_sight()
+            self.collide_food_boule(boule)
+            boule.see_eyes2("f", self.food_collision)
 
-                for food in self.foods:
-                    if food.get_eaten() == False:
-                            if boule.collide_food(food):
-                                food.die()
-                                boule.eat()
-                            boule.see_eyes("food", food)
-        for spike in self.spikes:
-                    spike.move()
-                    for boule in self.boules:
-                        if boule.is_dead() == False:
-                            if boule.collide_spike(spike):
-                                boule.kill()
-                            boule.see_eyes("spike", spike)
+
+        # for boule in self.boules:
+        #     boule.starve()
+            
+        #     if boule.is_dead() == False:
+        #         boule.move()
+        #         if boule.energy == 0:
+        #             boule.kill()
+        #             continue
+        #         boule.reset_sight()
+
+        #         for food in self.foods:
+        #             if food.get_eaten() == False:
+        #                     if boule.collide_food(food):
+        #                         food.die()
+        #                         boule.eat()
+        #                     boule.see_eyes("food", food)
+        # for spike in self.spikes:
+        #             spike.move()
+        #             for boule in self.boules:
+        #                 if boule.is_dead() == False:
+        #                     if boule.collide_spike(spike):
+        #                         boule.kill()
+        #                     boule.see_eyes("spike", spike)
 
 
     def set_collision_food(self, food):
-        for vec in food.mask:
-            x = vec[0] +food.x
-            y = vec[1] +food.y
-            if (0<x<self.width) and (0<y<self.height):
-                self.food_collision[x][y] = 1
+        if (food.id !=False):
+            for vec in food.mask:
+                x = vec[0] +food.x +int(self.collision_grid_margin/2)
+                y = vec[1] +food.y +int(self.collision_grid_margin/2)
+                if (0<x<self.width) and (0<y<self.height):
+                    
+                        self.food_collision[x][y] = food.id
+        else:
+            print("Waring : food without ID\n")
 
     def add_spike(self, spike):
         self.spikes.append(spike)
@@ -347,18 +415,48 @@ class Board:
     
     def get_height(self):
         return self.height
-    def add_food(self, food):
+    def add_food(self, food : Food):
         self.foods.append(food)
+        new_id = self.last_used_id_food +1
+        food.set_id(new_id)
+        self.last_used_id_food = new_id
+        self.set_collision_food(food)
+        
 
 
     def add_boule(self, boule):
         self.boules.append(boule)
+        
 
     def get_boules(self):
         return self.boules
     
     def get_spikes(self):
         return self.spikes
+    
+    def remove_food(self,food):
+        for p in food.mask:
+            x = p[0]+food.get_x() +int(self.collision_grid_margin/2)
+            y = p[1]+food.get_y() +int(self.collision_grid_margin/2)
+            self.food_collision[x][y] = 0
+        self.foods.remove(food)
+    
+    def get_food_by_id(self, id):
+        for food in self.foods:
+            if food.id == id:
+                return food
+
+
+    def collide_food_boule(self,boule :Boule):
+        for p in boule.mask:
+            x = p[0]+boule.get_x() +int(self.collision_grid_margin/2)
+            y = p[1]+boule.get_y() +int(self.collision_grid_margin/2)
+            square_value = self.food_collision[x][y]
+            if square_value !=0:
+                self.remove_food(self.get_food_by_id(square_value))
+                boule.eat()
+
+    
 
 def even_spaced_eyes(nb_eyes,offset,lenght,boule):
     new_list = []
