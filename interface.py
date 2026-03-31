@@ -174,19 +174,19 @@ class Game:
 
 
 if __name__ == "__main__":
-    largeur =  500
-    hauteur = 500
+    largeur =  1000
+    hauteur = 1000
     res_width = 1000
     res_height = 1000
     nombre_spikes = 0
-    nombre_food = 50
+    nombre_food = 150
     nombre_boule = 64
-    board = create_sim_test(largeur,hauteur,nombre_spikes,nombre_food,nombre_boule)
+    board = create_sim_test_nn(largeur,hauteur,nombre_spikes,nombre_food,nombre_boule)
     #const_board = create_constant_sim(500,500)
     new_game = Game(
         res_width, res_height,board,
     )
-    new_game.set_manual_control(new_game.board.boules[0], True)
+    #new_game.set_manual_control(new_game.board.boules[0], True)
     #setup le controlle avec le clavier pour une boule (a mettre en commentaire pour désactiver)
     #2iem argument pour rendre la boule immortelle ou non
     with torch.inference_mode():

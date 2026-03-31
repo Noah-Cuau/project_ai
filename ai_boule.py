@@ -32,8 +32,8 @@ class Boule_NN_Pilot:
 
     def get_context(self):
         tensor_context = torch.zeros(3+self.nb_eyes_spike+self.nb_eyes_food)
-        tensor_context[0] = (self.boule.get_x()/self.b_width -0.5)
-        tensor_context[1] = (self.boule.get_y()/self.b_height -0.5)
+        tensor_context[0] = (self.boule.get_x()/self.b_width )
+        tensor_context[1] = (self.boule.get_y()/self.b_height )
         tensor_context[2] = ((self.boule.get_angle()/360)%360)-0.5
         
         for i in range(self.nb_eyes_spike):
