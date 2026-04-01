@@ -116,6 +116,7 @@ class Boule:
         self.saw_by_spike_eyes = []
         self.board : Board = board
         self.mask = create_circle_mask(self.radius,TOLERANCE_MASK)
+        self.score = 0
         
 
     def set_eyes(self,eyes_list,eye_type):
@@ -193,6 +194,8 @@ class Boule:
     def starve(self):
         if not self.immortal:
             self.energy -=1
+        if self.energy <=0:
+            self.dead =True
 
     def see_eyes(self,eye_type,object):
         if eye_type == "spike":
@@ -248,6 +251,9 @@ class Boule:
         inputs.extend(self.saw_by_food_eyes)
 
         return torch.tensor(inputs, dtype=torch.float32)
+    
+    def upgrade_score(self):
+        self.score+=1
 
     
    
@@ -361,6 +367,8 @@ class Board:
         self.food_collision = np.zeros((width+self.collision_grid_margin,height+self.collision_grid_margin))
         self.spike_collision =  np.zeros((width+self.collision_grid_margin,height+self.collision_grid_margin))
         self.last_used_id_food = 0
+        self.dead_boule = list()
+        self.nb_alive_boule = 0
         
 
     def run(self):
@@ -369,6 +377,22 @@ class Board:
             boule.reset_sight()
             self.collide_food_boule(boule)
             boule.see_eyes2("f", self.food_collision)
+            boule.move()
+            boule.starve()
+            boule.upgrade_score()
+            if boule.is_dead():
+                self.boules.remove(boule)
+                self.dead_boule.append(boule)
+                self.nb_alive_boule -=1
+                
+                if (self.nb_alive_boule<=0):
+                    return True
+        
+        return False
+    
+    def get_sorted_generation(self):
+        return sorted(self.dead_boule, key= lambda b : b.score)
+            
 
 
         # for boule in self.boules:
@@ -426,6 +450,7 @@ class Board:
 
     def add_boule(self, boule):
         self.boules.append(boule)
+        self.nb_alive_boule+=1
         
 
     def get_boules(self):

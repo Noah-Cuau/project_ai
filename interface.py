@@ -57,7 +57,7 @@ class Game:
     def printf_spikes(self):
         for spike in self.board.spikes:
             rect = pygame.Rect(spike.get_x()-(spike.get_radius()*0.70), spike.get_y()-(spike.get_radius()*0.70), spike.get_radius()*1.41, spike.get_radius()*1.41)
-            #pygame.draw.circle(self.screen, "black", (spike.get_x(), spike.get_y()), spike.get_radius())
+            pygame.draw.circle(self.screen, "black", (spike.get_x(), spike.get_y()), spike.get_radius())
             pygame.draw.rect(self.screen, "red", rect)
             
 
@@ -142,7 +142,7 @@ class Game:
             self.manual_control.input_movement(x,y,rot)
 
 
-        self.board.run()
+        sim_ended = self.board.run()
         self.screen.fill("white")
 
         #self.quadrillage()
@@ -154,7 +154,8 @@ class Game:
         pygame.display.flip()
         self.clock.tick(120)
         t = round(time.time() - t0,4)
-        print(f"\rTime to compute frame: {t}", end="", flush=True)
+        #print(f"\rTime to compute frame: {t}", end="", flush=True)
+        return sim_ended
 
     def set_manual_control(self, boule, immortal):
         self.manual_control = boule
@@ -189,7 +190,12 @@ if __name__ == "__main__":
     #new_game.set_manual_control(new_game.board.boules[0], True)
     #setup le controlle avec le clavier pour une boule (a mettre en commentaire pour désactiver)
     #2iem argument pour rendre la boule immortelle ou non
+    torch.random.seed()
     with torch.inference_mode():
 
         while new_game.running:
-            new_game.run()
+            if new_game.run():
+                result= new_game.board.get_sorted_generation()
+                print(result[0].score)
+                print(result[-1].score)
+        
