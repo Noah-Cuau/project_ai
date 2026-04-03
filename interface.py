@@ -313,7 +313,10 @@ class Trainging_v1():
             t = round(time.time()-t0,3)
             print(f"\rTime to run all board: {t} , nb finished board : {nb_finished_board} , current gen : {self.current_gen}  ", end="", flush=True)
             if self.game !=False:
-                self.game.render()
+                if self.game.running:
+                    self.game.render()
+                else:
+                    pygame.display.quit()
         best_genome = self.make_next_gen(True)
         save_genome_v1(best_genome, "test-2")
         self.current_gen+=1
