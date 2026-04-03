@@ -4,8 +4,9 @@ import random
 import torch
 import numpy as np
 
+
 TOLERANCE_MASK = 5
-COLLISION_GRID_MARGIN = 80
+COLLISION_GRID_MARGIN = 800
 def create_circle_mask(radius, tolerance):
     mask = []
     for i in range(-radius, radius+1):
@@ -155,7 +156,7 @@ class Boule:
     def get_energy(self):
         return self.energy
     def eat(self):
-        self.energy += 300
+        self.energy += 60
     
     def get_spike_eyes(self) ->list[Eye]:
         return self.spike_eyes
@@ -254,6 +255,15 @@ class Boule:
     
     def upgrade_score(self):
         self.score+=1
+
+    def get_genome(self):
+        if hasattr(self.pilot,"NN"):
+            if hasattr(self.pilot.NN, "genome"):
+                return self.pilot.NN.genome
+            else:
+                 print("WARNING : No genome NN\n")
+        else:
+            print("WARNING : No NN\n")
 
     
    
@@ -360,7 +370,7 @@ class Board:
     def __init__(self, width, height):
         self.boules = []
         self.spikes = []
-        self.foods = []
+        self.foods : list[Food] = []
         self.collision_grid_margin = COLLISION_GRID_MARGIN
         self.width = width
         self.height = height
@@ -369,7 +379,14 @@ class Board:
         self.last_used_id_food = 0
         self.dead_boule = list()
         self.nb_alive_boule = 0
+        self.counter = 0
+        self.food_spawn_c = 60
+        self.spawn_new_food = True
         
+    def add_random_food(self):
+        new_food = Food(random.randint(int(self.width*0.05),int(self.width-(self.width*0.05))),random.randint(int(self.height * 0.05),int(self.height -(self.height*0.05))))
+        self.add_food(new_food)
+
 
     def run(self):
         
@@ -387,6 +404,13 @@ class Board:
                 
                 if (self.nb_alive_boule<=0):
                     return True
+        self.counter+=1
+        if self.spawn_new_food:
+            if self.counter ==self.food_spawn_c:
+                self.add_random_food()
+                self.counter = 0
+                self.food_spawn_c +=60
+            
         
         return False
     
@@ -420,17 +444,26 @@ class Board:
         #                     boule.see_eyes("spike", spike)
 
 
-    def set_collision_food(self, food):
-        if (food.id !=False):
-            for vec in food.mask:
+    def set_collision_food(self, food,reset : bool = False ):
+        if food.id ==0:
+            print("Warning : food id is 0")
+        val = 0
+        if reset:
+            val = 0
+        else:
+            if (food.id !=False):
+                val = food.id
+            else:
+                print("Waring : food without ID\n")
+                val = 0
+
+       
+        for vec in food.mask:
                 x = vec[0] +food.x +int(self.collision_grid_margin/2)
                 y = vec[1] +food.y +int(self.collision_grid_margin/2)
-                if (0<x<self.width) and (0<y<self.height):
                     
-                        self.food_collision[x][y] = food.id
-        else:
-            print("Waring : food without ID\n")
-
+                self.food_collision[x][y] = val
+        
     def add_spike(self, spike):
         self.spikes.append(spike)
 
@@ -480,6 +513,56 @@ class Board:
             if square_value !=0:
                 self.remove_food(self.get_food_by_id(square_value))
                 boule.eat()
+
+   
+
+
+class Board_train_v1(Board):
+    def __init__(self, width, height):
+        super().__init__(width, height)
+        self.set_fixed_food()
+        self.spawn_new_food = False
+
+    def set_fixed_food(self):
+        w = int(self.width/100)
+        h = int(self.height/100)
+        for i in range(w):
+            for j in range(h):
+                food = Food(50+(i*w*10), 50+(j*h*10))
+                self.add_food(food)
+
+    def set_single_boule(self,boule):
+        self.boules = [boule]
+        self._ref_single_boule = boule
+
+    def get_genome(self):
+        
+        return self.dead_boule[0].get_genome()
+    
+    def get_single_boule(self):
+        return self._ref_single_boule
+    
+    def reset_food(self):
+        for food in self.foods:
+            self.set_collision_food(food, True)
+        self.foods = []
+
+    def reset(self):
+        self.boules = []
+        self.reset_food()
+        self.last_used_id_food = 0
+        self.dead_boule = []
+        self.nb_alive_boule = 0
+        self.counter = 0
+        self.food_spawn_c = 60
+                
+    
+    
+
+    
+
+
+
 
     
 

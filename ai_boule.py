@@ -2,6 +2,7 @@ import torch
 from torch import nn
 from simulation import Boule, Eye, Board
 import random
+import pickle
 
 
 
@@ -35,7 +36,16 @@ def random_genome_v1()->Genome_v1:
 
     return Genome_v1(weight_l1, bias_l1, weight_l2, bias_l2, weight_l3, bias_l3)
 
+def save_genome_v1(g :Genome_v1, filename : str):
+    f = open(filename, 'wb')
+    pickle.dump(g, f)
+    f.close()
 
+def load_genome_v1(filename : str):
+    f = open(filename, 'rb')
+    g = pickle.load(f)
+    f.close()
+    return g
 
 def pick_mutation(chance, magnitude):
     #chance in percentage value between 0 and 100
@@ -62,7 +72,7 @@ def crossover_genome_v1(g1 :Genome_v1, g2 : Genome_v1):
     for i_layer,l in enumerate(layers_w):
         for i,t in enumerate(l):
             for j,_ in enumerate(t): 
-                l[i][j] = getattr(choice[random.randint(0,1)], layers_w_name[i_layer])[i][j] + pick_mutation(10, 0.2)
+                l[i][j] = getattr(choice[random.randint(0,1)], layers_w_name[i_layer])[i][j] + pick_mutation(5, 0.2)
 
     layers_b = [bias_l1, bias_l2, bias_l3]
     layers_b_name = ["bias_l1","bias_l2","bias_l3"]

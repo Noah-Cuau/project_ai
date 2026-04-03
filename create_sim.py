@@ -96,13 +96,16 @@ def create_sim_test(width, height, nombre_spikes, nombre_foods, nombre_boule):
     return new_b
 
 
+
+
+
 def create_sim_test_nn(width, height, nombre_spikes, nombre_foods, nombre_boule):
     new_b = create_sim_test(width, height, nombre_spikes, nombre_foods, 0)
     for i in range(nombre_boule):
         new_boule = Boule(random.randint(0, width), random.randint(0,height), 0, new_b)
         new_b.add_boule(new_boule)
 
-        new_eyes = even_spaced_eyes(8,0, 35,new_b.boules[i])
+        new_eyes = even_spaced_eyes(8,0, 300,new_b.boules[i])
         new_boule.set_eyes(new_eyes,"food")
 
        
@@ -110,6 +113,8 @@ def create_sim_test_nn(width, height, nombre_spikes, nombre_foods, nombre_boule)
     
    
     return new_b
+
+
         
 
         
